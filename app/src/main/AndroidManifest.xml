@@ -2,6 +2,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.geomonitor">
 
+    <!-- Разрешение об использование местоположения для устройств с версией Android < 6.0 -->
+
+    <!-- Использование приблизительного определения местонахождения при помощи вышек сотовой связи или точек доступа Wi-Fi -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"></uses-permission>
+
+    <!-- Точное определение местонахождения при помощи GPS -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"></uses-permission>
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
