@@ -1,16 +1,24 @@
 package com.example.geomonitor;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.graphics.Matrix;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity implements LocListenerInterface {
@@ -20,18 +28,51 @@ public class MainActivity extends AppCompatActivity implements LocListenerInterf
     private Location lastLocation;
     private int distance;
 
+    private TextView tvDistance;
+    private TextView tvVelocity;
+    private ProgressBar progressBar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initLocServices();
+
+        tvDistance = findViewById(R.id.tvDistance);
+        tvVelocity = findViewById(R.id.tvVelocity);
+        progressBar = findViewById(R.id.progressBar);
+        progressBar.setMax(10000);
     }
 
     private void initLocServices() {
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         myLocListener = new MyLocListener();
-        myLocListener.setLocListenerInterface(this );
+        myLocListener.setLocListenerInterface(this);
         checkPermissions();
+    }
+
+    private void showDialog() {
+        AlertDialog.Builder adBuilder = new AlertDialog.Builder(this);
+        adBuilder.setTitle(R.string.dialog_title);
+        ConstraintLayout cl = (ConstraintLayout) getLayoutInflater().inflate(R.layout.dialog, null);
+        adBuilder.setPositiveButton(R.string.dialog_button, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                AlertDialog ad = (AlertDialog) dialogInterface;
+                EditText ed = ad.findViewById(R.id.ptReqDist);
+                if (ed != null && ed.getText().toString().equals("")) {
+                    progressBar.setMax(Integer.parseInt(ed.getText().toString()));
+                }
+
+            }
+        });
+        adBuilder.setView(cl);
+        adBuilder.show();
+
+    }
+
+    public void onClickDistance(View view) {
+        showDialog();
     }
 
     @Override
@@ -66,5 +107,8 @@ public class MainActivity extends AppCompatActivity implements LocListenerInterf
             distance += lastLocation.distanceTo(location);
         }
         lastLocation = location;
+        tvDistance.setText(String.valueOf((distance)));
+        tvVelocity.setText(String.valueOf(location.getSpeed()));
+
     }
 }
