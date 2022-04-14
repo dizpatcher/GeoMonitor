@@ -33,7 +33,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
 
-public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, View.OnClickListener {
 
     final String MY_TAG = "GEO_MONITOR";
     private GoogleMap mMap;
@@ -60,6 +60,20 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         button = findViewById(R.id.StartOrStop);
         timeView = findViewById(R.id.time);
         distanceView = findViewById(R.id.distance);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_CODE) {
+            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                setMap();
+            }
+            else{
+                Log.d(MY_TAG, "NO REQUEST CODE");
+                finish();
+            }
+        }
     }
 
     private final BroadcastReceiver newLocationReceiver = new BroadcastReceiver() {
@@ -219,16 +233,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQUEST_CODE) {
-            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                setMap();
-            }
-            else{
-                Log.d(MY_TAG, "NOT REQUEST CODE");
-                finish();
-            }
+    public void onClick(View view) {
+        final int sosId = R.id.StartOrStop;
+        final int historyId = R.id.History;
+
+        switch (view.getId()) {
+            case sosId:
+                onStartStopTracking(view);
+                break;
+            case historyId:
+                onShowingHistory(view);
+                break;
         }
     }
 

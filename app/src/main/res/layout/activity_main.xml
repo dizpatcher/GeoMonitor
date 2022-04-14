@@ -17,8 +17,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
 
-        <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:tools="http://schemas.android.com/tools"
+        <androidx.fragment.app.FragmentContainerView
             android:id="@+id/map"
             android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
@@ -28,8 +27,9 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="10"
-            android:orientation="horizontal">
+            android:layout_weight="15"
+            android:orientation="horizontal"
+            style="?android:attr/buttonBarStyle">
 
             <Button
                 android:id="@+id/StartOrStop"
@@ -37,8 +37,8 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:layout_weight="1"
-                android:onClick="onStartStopTracking"
-                android:text="@string/start" />
+                android:text="@string/start"
+                style="?android:attr/buttonBarStyle"/>
 
             <Button
                 android:id="@+id/History"
@@ -46,8 +46,8 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:layout_weight="1"
-                android:onClick="onShowingHistory"
-                android:text="@string/history" />
+                android:text="@string/history"
+                style="?android:attr/buttonBarStyle" />
 
         </LinearLayout>
 
