@@ -1,22 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.geomonitor">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.example.geomonitor"
+    tools:ignore="CoarseFineLocation">
     <!-- Разрешение об использование местоположения для устройств с версией Android < 6.0 -->
     <!-- Использование приблизительного определения местонахождения при помощи вышек сотовой связи или точек доступа Wi-Fi -->
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /> <!-- Точное определение местонахождения при помощи GPS -->
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /> <!-- Разрешение для создания уведомления -->
+<!--    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />-->
+    <!-- Точное определение местонахождения при помощи GPS -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <!-- Разрешение для создания уведомления -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
         android:allowBackup="true"
+        android:fullBackupContent="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.GeoMonitor">
-        <activity
-            android:name=".GraphActivity"
-            android:exported="false" />
         <activity
             android:name=".HistoryDetailActivity"
             android:exported="false" />
@@ -27,12 +29,12 @@
         <service
             android:name=".TrackerService"
             android:enabled="true"
-            android:exported="true" />
+            android:exported="false" />
 
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:screenOrientation="portrait">
+            android:screenOrientation="unspecified">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -47,6 +49,12 @@
         <uses-library
             android:name="org.apache.http.legacy"
             android:required="false" />
+
+        <provider
+            android:name=".HistoryProvider"
+            android:authorities="com.example.geomonitor.HistoryProvider"
+            android:exported="false"
+            android:multiprocess="true" />
     </application>
 
 </manifest>

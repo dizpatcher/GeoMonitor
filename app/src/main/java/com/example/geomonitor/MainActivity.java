@@ -3,7 +3,6 @@ package com.example.geomonitor;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
@@ -28,8 +27,6 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -59,6 +56,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
+        assert mapFragment != null;
         mapFragment.getMapAsync(this);
         LocalBroadcastManager.getInstance(this).registerReceiver(newLocationReceiver, new IntentFilter("AddPolyLine"));
         button = findViewById(R.id.StartOrStop);
@@ -88,7 +86,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]
                     {Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE);
-            return;
         } else {
             setMap();
         }
@@ -128,8 +125,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         double latitude = lastKnownLocation.getLatitude();
         double longitude = lastKnownLocation.getLongitude();
-        LatLng latLng = new LatLng(latitude, longitude); //create a new LatLng class
-        return latLng;
+        return new LatLng(latitude, longitude);
     }
 
     /** Defines callbacks as the second parameter of bindService() */
@@ -221,7 +217,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         startActivity(intent);
     }
 
-    //function that return the time in string format given the time in milliseconds
+    // function that return the time in string format given the time in milliseconds
     public String stringForTime(int timeMs){
         int totalSeconds = timeMs / 1000;
         int seconds = totalSeconds % 60;
@@ -237,30 +233,25 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         builder.setTitle(R.string.app_name);
         builder.setMessage("Do you want to exit running tracker?");
         builder.setIcon(R.drawable.ic_launcher_foreground);
-        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                dialog.dismiss();
-                finish();
-            }
+        builder.setPositiveButton("Yes", (dialog, id) -> {
+            dialog.dismiss();
+            finish();
         });
-        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                dialog.dismiss();
-            }
-        });
+        builder.setNegativeButton("No", (dialog, id) -> dialog.dismiss());
         AlertDialog alert = builder.create();
         alert.show();
     }
 
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQUEST_CODE) {
             if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 setMap();
             }
             else{
+                Log.d("g53mdp", "NOT REQUEST CODE");
                 finish();
             }
         }
