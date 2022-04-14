@@ -96,14 +96,6 @@
             android:layout_marginLeft="10dp"
             android:layout_marginBottom="10dp">
         </ListView>
-
-        <Button
-            android:id="@+id/button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:onClick="showGraph"
-            android:text="statistical graph" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

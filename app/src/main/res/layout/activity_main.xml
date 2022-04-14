@@ -38,7 +38,7 @@
                 android:layout_margin="5dp"
                 android:layout_weight="1"
                 android:onClick="onStartStopTracking"
-                android:text="START" />
+                android:text="@string/start" />
 
             <Button
                 android:id="@+id/History"
@@ -47,7 +47,7 @@
                 android:layout_margin="5dp"
                 android:layout_weight="1"
                 android:onClick="onShowingHistory"
-                android:text="HISTORY" />
+                android:text="@string/history" />
 
         </LinearLayout>
 
@@ -59,7 +59,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
         android:background="@android:color/black"
-        android:text="0:0:0"
+        android:text="@string/cur_time"
         android:textAlignment="center"
         android:textColor="@android:color/holo_green_light"
         android:visibility="invisible"
@@ -72,7 +72,7 @@
         android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="14dp"
-        android:text="0.0 m"
+        android:text="@string/cur_distance"
         android:textAlignment="center"
         android:visibility="invisible"
         android:background="@android:color/black"

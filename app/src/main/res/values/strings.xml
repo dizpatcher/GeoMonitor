@@ -1,5 +1,8 @@
 <resources>
     <string name="app_name">GeoMonitor</string>
-    <string name="dialog_title">Ввод цели</string>
-    <string name="dialog_button">Готово</string>
+    <string name="start">START</string>
+    <string name="stop">STOP</string>
+    <string name="history">JOURNAL</string>
+    <string name="cur_distance">%1$d m</string>
+    <string name="cur_time">%1d:%2d:%3d</string>
 </resources>

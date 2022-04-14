@@ -1,25 +1,16 @@
 package com.example.geomonitor;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-
 import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.location.Location;
 import android.location.LocationManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -30,6 +21,11 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -39,11 +35,11 @@ import com.google.android.gms.maps.model.PolylineOptions;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
 
+    final String MY_TAG = "GEO_MONITOR";
     private GoogleMap mMap;
-    private int REQUEST_CODE = 1; //request code that used to get permission of access location
+    private final int REQUEST_CODE = 1; // код успешного получения разрешения
     private TrackerService myService = null;
     private boolean threadIsWorking;
-    private Thread trackerThread;
     private Handler handler;
     private Button button;
     private TextView timeView;
@@ -53,10 +49,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
-        assert mapFragment != null;
+
+        assert mapFragment != null : "Google-карты не загружаются...";
         mapFragment.getMapAsync(this);
         LocalBroadcastManager.getInstance(this).registerReceiver(newLocationReceiver, new IntentFilter("AddPolyLine"));
         button = findViewById(R.id.StartOrStop);
@@ -64,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         distanceView = findViewById(R.id.distance);
     }
 
-    private BroadcastReceiver newLocationReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver newLocationReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             LatLng lastLatLng = (LatLng) intent.getExtras().get("lastLocation");
@@ -73,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             mMap.moveCamera(CameraUpdateFactory.newLatLng(newLatLng));
 
             float distance = (float) intent.getExtras().get("distance");
-            distanceView.setText(Float.toString(distance) + " m"); //set text view with current running distance
+            distanceView.setText(getString(R.string.cur_distance, distance)); //set text view with current running distance
         }
     };
 
@@ -106,8 +104,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         try {
             lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         } catch (SecurityException e) {
-            Log.d("g53mdp", e.toString());
+            Log.d(MY_TAG, e.toString());
         }
+        assert lastKnownLocation != null : "Последняя локация - null";
         double latitude = lastKnownLocation.getLatitude();
         double longitude = lastKnownLocation.getLongitude();
         LatLng currentLatLng = new LatLng(latitude, longitude); //create a new LatLng class
@@ -120,20 +119,21 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         try {
             lastKnownLocation = myService.getLocationManager().getLastKnownLocation(LocationManager.GPS_PROVIDER);
         } catch (SecurityException e) {
-            Log.d("g53mdp", e.toString());
+            Log.d(MY_TAG, e.toString());
         }
 
+        assert lastKnownLocation != null;
         double latitude = lastKnownLocation.getLatitude();
         double longitude = lastKnownLocation.getLongitude();
         return new LatLng(latitude, longitude);
     }
 
     /** Defines callbacks as the second parameter of bindService() */
-    private ServiceConnection serviceConnection = new ServiceConnection() {
+    private final ServiceConnection serviceConnection = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            Log.d("g53mdp", "MainActivity onServiceConnected");
+            Log.d(MY_TAG, "MainActivity onServiceConnected");
             TrackerService.MyBinder binder = ( TrackerService.MyBinder) service;
             myService = binder.getService();
             myService.startTracking();
@@ -145,71 +145,62 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            Log.d("g53mdp", "MainActivity onServiceDisconnected");
+            Log.d(MY_TAG, "MainActivity onServiceDisconnected");
             myService.stopTracking();
             myService = null;
         }
     };
 
     public void onStartStopTracking(View v){
-        String status = (String)button.getText();
-        Log.d("g53mdp", status);
-        if(status.equals("START")){
+        String status = (String) button.getText();
+        Log.d(MY_TAG, status);
+        if (status.equals(getString(R.string.start))) {
+
             final Intent intent = new Intent(this, TrackerService.class);
             startService(intent);
             bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
             mMap.clear();
-            button.setText("STOP");
+            button.setText(getString(R.string.stop));
             timeView.setVisibility(View.VISIBLE);
             distanceView.setVisibility(View.VISIBLE);
 
             handler = new Handler();
             threadIsWorking = true;//make thread start working
             //a thread that updates the TextView of running time
-            trackerThread = new Thread(new Runnable(){
-                @Override
-                public void run() {
-                    int interval = 1000;//the interval of updating progress
-                    int runTime = 0;
-                    while(threadIsWorking){
-                        final TextView timeView = findViewById(R.id.time);
-                        try {
-                            final int finalRunTime = runTime;
-                            handler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    timeView.setText(stringForTime(finalRunTime));
-                                }
-                            });
-                            Thread.sleep(interval);
-                            runTime = runTime + interval;
-                        }catch (InterruptedException e){
-                            e.printStackTrace();
-                        }
+            //the interval of updating progress
+            Thread trackerThread = new Thread(() -> { // лямбда функцией создаём поток для времени
+                int interval = 1000;//the interval of updating progress
+                int runTime = 0;
+                while (threadIsWorking) {
+                    final TextView timeView = findViewById(R.id.time);
+                    try {
+                        final int finalRunTime = runTime;
+                        handler.post(() -> timeView.setText(stringForTime(finalRunTime)));
+                        Thread.sleep(interval);
+                        runTime = runTime + interval;
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
                 }
             });
             trackerThread.start();
         }
-        else if(status.equals("STOP")){
-            if(myService!=null) {
+        else {
+            if (myService!=null) {
                 unbindService(serviceConnection);
             }
             final Intent intent = new Intent(this, TrackerService.class);
             stopService(intent);
             threadIsWorking = false;//make thread stop working
-            button.setText("START");
+            button.setText(getString(R.string.start));
             timeView.setVisibility(View.INVISIBLE);
             distanceView.setVisibility(View.INVISIBLE);
-            distanceView.setText("0.0 m");
+            distanceView.setText(getString(R.string.cur_distance));
 
             // use toast to remind user that track has been saved
-            Toast toast = Toast.makeText(getApplicationContext(), "Your running track has been saved successfully!", Toast.LENGTH_SHORT);
+            Toast toast = Toast.makeText(getApplicationContext(), "Ваша активность была успешно записа!", Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER, 0, 0);
             toast.show();
-        }
-        else{
-            Log.d("g53mdp", "something goes wrong");
         }
     }
     public void onShowingHistory(View v){
@@ -223,23 +214,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         int seconds = totalSeconds % 60;
         int minutes = (totalSeconds / 60) % 60;
         int hours = totalSeconds/3600;
-        return Integer.toString(hours) + ":" + Integer.toString(minutes) + ":" + Integer.toString(seconds);
-    }
-
-    //function that ask user if they want to exit this app when back button is pressed
-    @Override
-    public void onBackPressed(){
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setTitle(R.string.app_name);
-        builder.setMessage("Do you want to exit running tracker?");
-        builder.setIcon(R.drawable.ic_launcher_foreground);
-        builder.setPositiveButton("Yes", (dialog, id) -> {
-            dialog.dismiss();
-            finish();
-        });
-        builder.setNegativeButton("No", (dialog, id) -> dialog.dismiss());
-        AlertDialog alert = builder.create();
-        alert.show();
+        return getString(R.string.cur_time, hours, minutes, seconds);
     }
 
 
@@ -251,7 +226,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 setMap();
             }
             else{
-                Log.d("g53mdp", "NOT REQUEST CODE");
+                Log.d(MY_TAG, "NOT REQUEST CODE");
                 finish();
             }
         }
@@ -259,38 +234,33 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     protected void onPause() {
-        // TODO Auto-generated method stub
         super.onPause();
-        Log.d("g53mdp", "MainActivity onPause");
+        Log.d(MY_TAG, "MainActivity onPause");
     }
 
     @Override
     protected void onResume() {
-        // TODO Auto-generated method stub
         super.onResume();
-        Log.d("g53mdp", "MainActivity onResume");
+        Log.d(MY_TAG, "MainActivity onResume");
     }
 
     @Override
     protected void onStart() {
-        // TODO Auto-generated method stub
         super.onStart();
-        Log.d("g53mdp", "MainActivity onStart");
+        Log.d(MY_TAG, "MainActivity onStart");
     }
 
     @Override
     protected void onStop() {
-        // TODO Auto-generated method stub
         super.onStop();
-        Log.d("g53mdp", "MainActivity onStop");
+        Log.d(MY_TAG, "MainActivity onStop");
     }
 
     @Override
     protected void onDestroy() {
-        // TODO Auto-generated method stub
         super.onDestroy();
-        Log.d("g53mdp", "MainActivity onDestroy");
-        if(myService != null){ //still want to track when exit application
+        Log.d(MY_TAG, "MainActivity onDestroy");
+        if (myService != null) { //still want to track when exit application
             unbindService(serviceConnection);
         }
     }

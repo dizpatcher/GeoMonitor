@@ -29,15 +29,12 @@ import java.util.concurrent.TimeUnit;
 
 public class TrackerService extends Service {
     private IBinder binder = null; // Binder given to the client
-    private final String CHANNEL_ID = "100"; //channel for the notification
-    private final int NOTIFICATION_ID = 001;
     private LocationManager locationManager;
     private MyLocationListener locationListener;
     private LinkedList locationList; //the ArrayList which stores all the location that user run through
     private Date startTime; //the start time of the running track
     private Date endTime; //the end time of the running track
     private float distance; //the total distance of a track
-    private float speed; //the average speed
     private boolean isTrackerStart = false;
 
     /**
@@ -68,6 +65,8 @@ public class TrackerService extends Service {
             CharSequence name = "My running tracker";
             String description = "This is my running tracker";
             int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            //channel for the notification
+            String CHANNEL_ID = "100";
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
             channel.setDescription(description);
             notificationManager.createNotificationChannel(channel);
@@ -81,6 +80,7 @@ public class TrackerService extends Service {
                     .setContentText("Click this to return to running tracker!")
                     .setContentIntent(pendingIntent)
                     .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+            int NOTIFICATION_ID = 001;
             notificationManager.notify(NOTIFICATION_ID, mBuilder.build());
         }
     }
@@ -190,7 +190,8 @@ public class TrackerService extends Service {
         endTime = Calendar.getInstance().getTime();
         //the difference between start time and end time is the track's duration
         float diffInSec = TimeUnit.MILLISECONDS.toSeconds(endTime.getTime() - startTime.getTime());
-        speed = distance/diffInSec;
+        //the average speed
+        float speed = distance / diffInSec;
         ContentValues newValues = new ContentValues();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
