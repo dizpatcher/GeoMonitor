@@ -4,9 +4,8 @@ import android.net.Uri;
 
 public class HistoryProviderContract {
 
-    public static final String AUTHORITY = "com.example.psyyg3.runningtracker.HistoryProvider";
-
-    public static final Uri HISTORY_URI = Uri.parse("content://"+AUTHORITY+"/myRunningHistory");
+    public static final String AUTHORITY = "com.example.geomonitor.HistoryProvider";
+    public static final Uri HISTORY_URI = Uri.parse("content://"+AUTHORITY+"/ActivityHistory");
 
     public static final String ID = "_id";
     public static final String DATE = "date";

@@ -5,7 +5,7 @@
     tools:ignore="CoarseFineLocation">
     <!-- Разрешение об использование местоположения для устройств с версией Android < 6.0 -->
     <!-- Использование приблизительного определения местонахождения при помощи вышек сотовой связи или точек доступа Wi-Fi -->
-<!--    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />-->
+    <!--    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />-->
     <!-- Точное определение местонахождения при помощи GPS -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <!-- Разрешение для создания уведомления -->
@@ -44,7 +44,7 @@
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyAr0CdBayoSMrOR5FhEMMAPpF1m_kwcF-s" />
+            android:value="@string/google_maps_key" />
 
         <uses-library
             android:name="org.apache.http.legacy"
@@ -53,7 +53,7 @@
         <provider
             android:name=".HistoryProvider"
             android:authorities="com.example.geomonitor.HistoryProvider"
-            android:exported="false"
+            android:exported="true"
             android:multiprocess="true" />
     </application>
 

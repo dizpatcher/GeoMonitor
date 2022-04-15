@@ -13,14 +13,14 @@ public class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        Log.d("g53mdp", "DBHelper onCreate");
+        Log.d("GEO_MONITOR_DB", "DBHelper onCreate");
         db.execSQL("CREATE TABLE ActivityHistory (" +
                 "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                "date DATE, " +      //the date of the running process
-                "startTime TIME, " +      //the time that running starts
-                "endTime TIME, " +      //the time that running ends
-                "distance FLOAT(10,2), " +   //the distance of the track
-                "speed FLOAT(10,2)" +         //the average speed
+                "date DATE, " +
+                "startTime TIME, " +
+                "endTime TIME, " +
+                "distance FLOAT(10,2), " +
+                "speed FLOAT(10,2)" +
                 ");");
         db.execSQL("INSERT INTO ActivityHistory (date, startTime, endTime, distance, speed) VALUES ('2019-01-06', '09:00:00', '09:30:00', 5000, 1.39);");
         db.execSQL("INSERT INTO ActivityHistory (date, startTime, endTime, distance, speed) VALUES ('2019-01-07', '10:00:00', '10:05:00', 1000, 3.33);");

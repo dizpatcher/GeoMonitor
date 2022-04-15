@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 
 public class HistoryProvider extends ContentProvider {
 
+    final String MY_TAG = "GEO_MONITOR_PROVIDER";
     private DBHelper dbHelper = null;
     private static final UriMatcher uriMatcher;
 
@@ -24,7 +25,7 @@ public class HistoryProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
-        Log.d("g53mdp", "HistoryProvider onCreate");
+        Log.d(MY_TAG, "HistoryProvider onCreate");
         this.dbHelper = new DBHelper(this.getContext());
         return true;
     }
@@ -32,7 +33,7 @@ public class HistoryProvider extends ContentProvider {
     @Nullable
     @Override
     public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
-        Log.d("g53mdp", uri.toString() + " " + uriMatcher.match(uri));
+        Log.d(MY_TAG, uri.toString() + " " + uriMatcher.match(uri));
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         return  db.query("ActivityHistory", projection, selection, selectionArgs, null, null, sortOrder);
     }
@@ -55,7 +56,7 @@ public class HistoryProvider extends ContentProvider {
         long id = db.insert("ActivityHistory", null, contentValues);
         db.close();
         Uri newUri = ContentUris.withAppendedId(uri, id); //new Uri after inserting
-        Log.d("g53mdp", newUri.toString());
+        Log.d(MY_TAG, newUri.toString());
         getContext().getContentResolver().notifyChange(newUri, null);
         return newUri;
     }

@@ -28,21 +28,21 @@ import java.util.LinkedList;
 import java.util.concurrent.TimeUnit;
 
 public class TrackerService extends Service {
+
+    final String MY_TAG = "GEO_MONITOR";
     private IBinder binder = null; // Binder given to the client
     private LocationManager locationManager;
     private MyLocationListener locationListener;
-    private LinkedList locationList; //the ArrayList which stores all the location that user run through
-    private Date startTime; //the start time of the running track
-    private Date endTime; //the end time of the running track
-    private float distance; //the total distance of a track
+    private LinkedList locationList; // храним все локации в связном спике
+    private Date startTime;
+    private Date endTime;
+    private float distance;
     private boolean isTrackerStart = false;
 
-    /**
-     * Class used for the client Binder
-     */
+    // возрвращаем экземпляр службы для использования извне
     public class MyBinder extends Binder {
         TrackerService getService() {
-            return TrackerService.this; //return this instance of service so clients can call public methods
+            return TrackerService.this;
         }
     }
 
@@ -54,18 +54,18 @@ public class TrackerService extends Service {
         locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
         locationListener = new MyLocationListener();
         try{
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5, 5, locationListener);
-        }catch(SecurityException e){
-            Log.d("g53mdp", e.toString());
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5, 20, locationListener); // провайдер, минимальное время обновления, минимальная дистанция, слушатель
+        } catch(SecurityException e) {
+            Log.d(MY_TAG, e.toString());
         }
 
-        //add notification
+        // настройки уведомления
         NotificationManager notificationManager = (NotificationManager)  getSystemService(NOTIFICATION_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = "My running tracker";
-            String description = "This is my running tracker";
+            CharSequence name = "GEO MONITOR";
+            String description = "Учёт физической активности на основе геолокации";
             int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            //channel for the notification
+
             String CHANNEL_ID = "100";
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
             channel.setDescription(description);
@@ -76,8 +76,8 @@ public class TrackerService extends Service {
             PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
             NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
                     .setSmallIcon(R.drawable.ic_launcher_background)
-                    .setContentTitle("Running Tracker")
-                    .setContentText("Click this to return to running tracker!")
+                    .setContentTitle("GEO MONITOR")
+                    .setContentText("Нажмитете, чтобы вернуться в приложение!")
                     .setContentIntent(pendingIntent)
                     .setPriority(NotificationCompat.PRIORITY_DEFAULT);
             int NOTIFICATION_ID = 001;
@@ -87,19 +87,19 @@ public class TrackerService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        Log.d("g53mdp", "service onBind");
+        Log.d(MY_TAG, "service onBind");
         return binder;
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d("g53mdp", "service onStartCommand");
+        Log.d(MY_TAG, "service onStartCommand");
         return Service.START_STICKY;
     }
 
     @Override
     public void onDestroy() {
-        Log.d("g53mdp", "service onDestroy");
+        Log.d(MY_TAG, "service onDestroy");
         super.onDestroy();
         locationManager.removeUpdates(locationListener);
         locationManager = null;
@@ -108,13 +108,13 @@ public class TrackerService extends Service {
 
     @Override
     public void onRebind(Intent intent) {
-        Log.d("g53mdp", "service onRebind");
+        Log.d(MY_TAG, "service onRebind");
         super.onRebind(intent);
     }
 
     @Override
     public boolean onUnbind(Intent intent) {
-        Log.d("g53mdp", "service onUnbind");
+        Log.d(MY_TAG, "service onUnbind");
         stopTracking();
         return super.onUnbind(intent);
     }
@@ -123,41 +123,42 @@ public class TrackerService extends Service {
 
         @Override
         public void onLocationChanged(Location location) {
-            Log.d("g53mdp", location.getLatitude() + " " + location.getLongitude());
-            if(isTrackerStart == true){
+            Log.d(MY_TAG, location.getLatitude() + " " + location.getLongitude());
+            if (isTrackerStart && location.hasSpeed() ) {
+
                 Intent intent = new Intent("AddPolyLine");
-                Location lastLocation = (Location)locationList.getLast();
+                Location lastLocation = (Location) locationList.getLast();
                 double lastLatitude = lastLocation.getLatitude();
                 double lastLongitude = lastLocation.getLongitude();
                 LatLng lastLatLng = new LatLng(lastLatitude, lastLongitude);
-                intent.putExtra("lastLocation", lastLatLng); //send previous location
+                intent.putExtra("lastLocation", lastLatLng); // запоминаем предыдущую локацию для отображения
                 double latitude = location.getLatitude();
                 double longitude = location.getLongitude();
                 LatLng newLatLng = new LatLng(latitude, longitude);
-                intent.putExtra("newLocation", newLatLng); //send latest location
+                intent.putExtra("newLocation", newLatLng); // запоминаем текущую локацию
                 intent.putExtra("distance", distance); //send current running distance
-                LocalBroadcastManager.getInstance(TrackerService.this).sendBroadcast(intent);//send local broadcast when location changes
-                locationList.add(location); //add the latest location to locationList
-                distance = distance + location.distanceTo(lastLocation);
+                LocalBroadcastManager.getInstance(TrackerService.this).sendBroadcast(intent); //send local broadcast when location changes
+                locationList.add(location); // сохраняем предыдущую локацию
+                distance += location.distanceTo(lastLocation);
             }
         }
 
         @Override
         public void onStatusChanged(String provider, int status, Bundle extras) {
             // information about the signal, i.e. number of satellites
-            Log.d("g53mdp", "onStatusChanged: " + provider + " " + status);
+            Log.d(MY_TAG, "onStatusChanged: " + provider + " " + status);
         }
 
         @Override
         public void onProviderEnabled(String provider) {
             // the user enabled (for example) the GPS
-            Log.d("g53mdp", "onProviderEnabled: " + provider);
+            Log.d(MY_TAG, "onProviderEnabled: " + provider);
         }
 
         @Override
         public void onProviderDisabled(String provider) {
             // the user disabled (for example) the GPS
-            Log.d("g53mdp", "onProviderDisabled: " + provider);
+            Log.d(MY_TAG, "onProviderDisabled: " + provider);
         }
     }
 
@@ -165,33 +166,31 @@ public class TrackerService extends Service {
         return locationManager;
     }
 
-    public MyLocationListener getLocationListener(){
-        return locationListener;
-    }
 
     public void startTracking(){
-        distance = 0; //initiate total running distance
-        locationList = new LinkedList(); //instantiate a new list to store all the locations that ran through
+        distance = 0;
+        locationList = new LinkedList(); // список хранения локаций
         startTime = Calendar.getInstance().getTime();
 
-        //add the start location to locationList
         Location lastKnownLocation = null;
         try {
             lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         } catch (SecurityException e) {
-            Log.d("g53mdp", e.toString());
+            Log.d(MY_TAG, e.toString());
         }
         locationList.add(lastKnownLocation);
         isTrackerStart  = true;
     }
 
+    // итоги активности
     public void stopTracking(){
         isTrackerStart  = false;
         endTime = Calendar.getInstance().getTime();
-        //the difference between start time and end time is the track's duration
-        float diffInSec = TimeUnit.MILLISECONDS.toSeconds(endTime.getTime() - startTime.getTime());
-        //the average speed
-        float speed = distance / diffInSec;
+
+        // считаеем время активности
+        float avgSpeed = TimeUnit.MILLISECONDS.toSeconds(endTime.getTime() - startTime.getTime());
+        //
+        float speed = distance / avgSpeed;
         ContentValues newValues = new ContentValues();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
