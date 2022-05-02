@@ -35,11 +35,11 @@ public class HistoryActivity extends AppCompatActivity implements AdapterView.On
         spinner.setOnItemSelectedListener(this);
 
         List<String> categories = new ArrayList<>();
-        categories.add("date");
-        categories.add("start time");
-        categories.add("end time");
-        categories.add("distance");
-        categories.add("speed");
+        categories.add(getString(R.string.date_label));
+        categories.add(getString(R.string.start_time_label));
+        categories.add(getString(R.string.end_time_label));
+        categories.add(getString(R.string.distance_label));
+        categories.add(getString(R.string.speed_label));
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, categories);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -103,20 +103,21 @@ public class HistoryActivity extends AppCompatActivity implements AdapterView.On
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long l) {
         String item = adapterView.getItemAtPosition(pos).toString();
-        switch (item){
-            case "date":
+
+        switch (item) {
+            case "Дата":
                 queryHistory(HistoryProviderContract.DATE);
                 break;
-            case "start time":
+            case "Начало":
                 queryHistory(HistoryProviderContract.STARTTIME);
                 break;
-            case "end time":
+            case "Конец":
                 queryHistory(HistoryProviderContract.ENDTIME);
                 break;
-            case "distance":
+            case "Дистанция":
                 queryHistory(HistoryProviderContract.DISTANCE);
                 break;
-            case "speed":
+            case "Ср. скорость":
                 queryHistory(HistoryProviderContract.SPEED);
                 break;
             default:

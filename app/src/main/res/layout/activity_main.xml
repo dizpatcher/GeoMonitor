@@ -58,10 +58,10 @@
         android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
-        android:background="@android:color/black"
         android:text="@string/zero_time"
         android:textAlignment="center"
         android:textColor="@android:color/holo_green_light"
+        android:textSize="30dp"
         android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -73,12 +73,14 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="14dp"
         android:text="@string/zero_distance"
+        android:textSize="30dp"
         android:textAlignment="center"
         android:visibility="invisible"
-        android:background="@android:color/black"
         android:textColor="@android:color/holo_blue_light"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvTime" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!--        android:background="@android:color/black"-->

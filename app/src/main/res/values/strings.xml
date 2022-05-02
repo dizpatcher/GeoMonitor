@@ -1,9 +1,9 @@
 <resources>
     <string name="app_name">GeoMonitor</string>
     <string name="google_maps_key">AIzaSyAr0CdBayoSMrOR5FhEMMAPpF1m_kwcF-s</string>
-    <string name="start">START</string>
-    <string name="stop">STOP</string>
-    <string name="history">JOURNAL</string>
+    <string name="start">НАЧАТЬ</string>
+    <string name="stop">ЗАКОНЧИТЬ</string>
+    <string name="history">ЗАПИСИ</string>
     <string name="zero">0</string>
     <string name="zero_distance">0 m</string>
     <string name="zero_time">0:0:0</string>
@@ -13,6 +13,10 @@
     <string name="date_label">Дата</string>
     <string name="start_time_label">Начало</string>
     <string name="end_time_label">Конец</string>
-    <string name="distance_label">Расстояние</string>
+    <string name="distance_label">Дистанция</string>
     <string name="speed_label">Ср. скорость</string>
+    <string name="time">Время</string>
+    <string name="duration">Продолжительность</string>
+    <string name="delete">УДАЛИТЬ</string>
+    <string name="colon">:</string>
 </resources>

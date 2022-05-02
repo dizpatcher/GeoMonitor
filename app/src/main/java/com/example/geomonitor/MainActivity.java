@@ -211,18 +211,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             tvDistance.setVisibility(View.INVISIBLE);
             tvDistance.setText(getString(R.string.cur_distance));
 
-            Toast toast = Toast.makeText(getApplicationContext(), "Ваша активность была успешно записа!", Toast.LENGTH_SHORT);
+            Toast toast = Toast.makeText(getApplicationContext(), "Ваша активность была успешно записана!", Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER, 0, 0);
             toast.show();
         }
     }
-    public void onShowingHistory(View v){
+    public void onShowingHistory(View v) {
         Intent intent = new Intent(MainActivity.this, HistoryActivity.class);
         startActivity(intent);
     }
 
     // перевод времени из миллисекунд в строку с разъбиением
-    public String stringForTime(int timeMs){
+    public String stringForTime(int timeMs) {
         int totalSeconds = timeMs / 1000;
         int seconds = totalSeconds % 60;
         int minutes = (totalSeconds / 60) % 60;

@@ -22,7 +22,6 @@
                 android:layout_weight="1"
                 android:text="@string/sort_label"
                 android:textAlignment="center"
-                android:textColor="@android:color/black"
                 android:layout_margin="10dp" />
 
             <Spinner
@@ -46,7 +45,6 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/date_label"
-                android:textColor="@android:color/black"
                 android:textAlignment="center"/>
 
             <TextView
@@ -55,7 +53,6 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:text="@string/start_time_label"
-                android:textColor="@android:color/black"
                 android:textAlignment="center"/>
 
             <TextView
@@ -64,7 +61,6 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/end_time_label"
-                android:textColor="@android:color/black"
                 android:textAlignment="center"/>
 
             <TextView
@@ -73,8 +69,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/distance_label"
-                android:textAlignment="center"
-                android:textColor="@android:color/black" />
+                android:textAlignment="center" />
 
             <TextView
                 android:id="@+id/speedView"
@@ -82,14 +77,13 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/speed_label"
-                android:textAlignment="center"
-                android:textColor="@android:color/black" />
+                android:textAlignment="center" />
         </LinearLayout>
 
         <ListView
             android:id="@+id/historyList"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginRight="10dp"
             android:layout_marginLeft="10dp"
