@@ -5,9 +5,11 @@
     <string name="stop">ЗАКОНЧИТЬ</string>
     <string name="history">ЗАПИСИ</string>
     <string name="zero">0</string>
-    <string name="zero_distance">0 m</string>
+    <string name="zero_distance">0 м</string>
+    <string name="zero_velocity">0 м/с</string>
     <string name="zero_time">0:0:0</string>
-    <string name="cur_distance">%1$f m</string>
+    <string name="cur_distance">%.1f м</string>
+    <string name="cur_velocity">%.1f м/с</string>
     <string name="cur_time">%1d:%2d:%3d</string>
     <string name="sort_label">Сортировка:</string>
     <string name="date_label">Дата</string>

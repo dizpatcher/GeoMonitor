@@ -15,6 +15,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -30,13 +31,16 @@ import java.util.concurrent.TimeUnit;
 public class TrackerService extends Service {
 
     final String MY_TAG = "GEO_MONITOR";
-    private IBinder binder = null; // Binder given to the client
+    private final int NOTIFICATION_ID = 1;
+    private IBinder binder = null;
     private LocationManager locationManager;
     private MyLocationListener locationListener;
     private LinkedList locationList; // храним все локации в связном спике
     private Date startTime;
     private Date endTime;
+    private float accuracy;
     private float distance;
+    private float velocity;
     private boolean isTrackerStart = false;
 
     // возрвращаем экземпляр службы для использования извне
@@ -54,7 +58,7 @@ public class TrackerService extends Service {
         locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
         locationListener = new MyLocationListener();
         try{
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5, 20, locationListener); // провайдер, минимальное время обновления, минимальная дистанция, слушатель
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10, 100, locationListener); // провайдер, минимальное время обновления, минимальная дистанция, слушатель
         } catch(SecurityException e) {
             Log.d(MY_TAG, e.toString());
         }
@@ -75,12 +79,11 @@ public class TrackerService extends Service {
             intent.addCategory(Intent.CATEGORY_LAUNCHER);
             PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
             NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
-                    .setSmallIcon(R.drawable.ic_launcher_background)
-                    .setContentTitle("GEO MONITOR")
-                    .setContentText("Нажмитете, чтобы вернуться в приложение!")
+                    .setSmallIcon(R.drawable.ic_launcher)
+                    .setContentTitle("Ваша физическая активность записывается.")
+                    .setContentText("Нажмите, чтобы вернуться в приложение!")
                     .setContentIntent(pendingIntent)
                     .setPriority(NotificationCompat.PRIORITY_DEFAULT);
-            int NOTIFICATION_ID = 001;
             notificationManager.notify(NOTIFICATION_ID, mBuilder.build());
         }
     }
@@ -124,40 +127,47 @@ public class TrackerService extends Service {
         @Override
         public void onLocationChanged(Location location) {
             Log.d(MY_TAG, location.getLatitude() + " " + location.getLongitude());
-            if (isTrackerStart && location.hasSpeed() ) {
-
+            accuracy = location.getAccuracy();
+            if (isTrackerStart && location.hasSpeed()) {
                 Intent intent = new Intent("AddPolyLine");
+//                Log.i("HasAccuracy", String.valueOf());
                 Location lastLocation = (Location) locationList.getLast();
                 double lastLatitude = lastLocation.getLatitude();
                 double lastLongitude = lastLocation.getLongitude();
                 LatLng lastLatLng = new LatLng(lastLatitude, lastLongitude);
-                intent.putExtra("lastLocation", lastLatLng); // запоминаем предыдущую локацию для отображения
+                intent.putExtra("accuracy", accuracy);
+                intent.putExtra("lastLocation", lastLatLng); // отправляем в интент предыдущую локацию для отображения
                 double latitude = location.getLatitude();
                 double longitude = location.getLongitude();
                 LatLng newLatLng = new LatLng(latitude, longitude);
-                intent.putExtra("newLocation", newLatLng); // запоминаем текущую локацию
-                intent.putExtra("distance", distance); //send current running distance
-                LocalBroadcastManager.getInstance(TrackerService.this).sendBroadcast(intent); //send local broadcast when location changes
+                intent.putExtra("newLocation", newLatLng); // отправляем в интент текущую локацию
+                velocity = location.getSpeed();
+                intent.putExtra("velocity", velocity);
+                intent.putExtra("distance", distance); // отправляем в интент текущую дистанцию
+                LocalBroadcastManager.getInstance(TrackerService.this).sendBroadcast(intent); // отправка в интент
                 locationList.add(location); // сохраняем предыдущую локацию
                 distance += location.distanceTo(lastLocation);
+            } else {
+                Intent intent = new Intent("AddPolyLine");
+                intent.putExtra("velocity", 0);
             }
         }
 
         @Override
         public void onStatusChanged(String provider, int status, Bundle extras) {
-            // information about the signal, i.e. number of satellites
+            // информация о сигнале, количестве спутников
             Log.d(MY_TAG, "onStatusChanged: " + provider + " " + status);
         }
 
         @Override
         public void onProviderEnabled(String provider) {
-            // the user enabled (for example) the GPS
+            // доступность провайдера
             Log.d(MY_TAG, "onProviderEnabled: " + provider);
         }
 
         @Override
         public void onProviderDisabled(String provider) {
-            // the user disabled (for example) the GPS
+            // недоступность провайдера
             Log.d(MY_TAG, "onProviderDisabled: " + provider);
         }
     }
@@ -184,6 +194,9 @@ public class TrackerService extends Service {
 
     // итоги активности
     public void stopTracking(){
+        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager.cancel(NOTIFICATION_ID);
+
         isTrackerStart  = false;
         endTime = Calendar.getInstance().getTime();
 

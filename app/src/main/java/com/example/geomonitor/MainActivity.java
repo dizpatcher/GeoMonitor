@@ -30,8 +30,11 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.JointType;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.maps.model.RoundCap;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, View.OnClickListener {
 
@@ -43,6 +46,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Button btnManager;
     private TextView tvTime;
     private TextView tvDistance;
+    private TextView tvVelocity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +63,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Button btnHistory = findViewById(R.id.btnHistory);
         btnManager = findViewById(R.id.btnManager);
         tvTime = findViewById(R.id.tvTime);
+        tvVelocity = findViewById(R.id.tvVelocity);
         tvDistance = findViewById(R.id.tvDistance);
 
         btnManager.setOnClickListener(this);
@@ -88,6 +93,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         mMap.setMyLocationEnabled(true);
+        mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
         mMap.getUiSettings().setZoomControlsEnabled(true);
 
         LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
@@ -100,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         assert lastKnownLocation != null : "Последняя локация - null";
         double latitude = lastKnownLocation.getLatitude();
         double longitude = lastKnownLocation.getLongitude();
-        LatLng currentLatLng = new LatLng(latitude, longitude); //create a new LatLng class
+        LatLng currentLatLng = new LatLng(latitude, longitude); // класс широта+долгота для google-карт
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 18));
     }
 
@@ -119,13 +125,32 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private final BroadcastReceiver newLocationReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            LatLng lastLatLng = (LatLng) intent.getExtras().get("lastLocation");
-            LatLng newLatLng = (LatLng) intent.getExtras().get("newLocation");
-            mMap.addPolyline(new PolylineOptions().add(lastLatLng, newLatLng).width(10).color(Color.BLUE));
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(newLatLng));
 
-            float distance = (float) intent.getExtras().get("distance");
-            tvDistance.setText(getString(R.string.cur_distance, distance)); // обновляем текущее расстояние
+            float accuracy = (float) intent.getExtras().get("accuracy");
+            if (accuracy < 6) {
+                LatLng lastLatLng = (LatLng) intent.getExtras().get("lastLocation");
+                LatLng newLatLng = (LatLng) intent.getExtras().get("newLocation");
+                Polyline polyline = mMap.addPolyline(new PolylineOptions().add(lastLatLng, newLatLng).width(9).color(Color.GREEN));
+                polyline.setStartCap(new RoundCap());
+                polyline.setJointType(JointType.ROUND);
+                polyline.setEndCap(new RoundCap());
+//            mMap.addPolyline();
+                mMap.moveCamera(CameraUpdateFactory.newLatLng(newLatLng));
+
+                float distance = (float) intent.getExtras().get("distance");
+                tvDistance.setText(getString(R.string.cur_distance, distance)); // обновляем текущее расстояние
+                float velocity = (float) intent.getExtras().get("velocity");
+                if (velocity > 0) {
+                    tvVelocity.setText(getString(R.string.cur_velocity, velocity));
+                } else {
+                    tvVelocity.setText(R.string.zero_velocity);
+                }
+            } else {
+                Toast toast = Toast.makeText(getApplicationContext(), "Вы в помещении? Выйдите на улицу, чтобы улучшить приём сигнала GPS!", Toast.LENGTH_SHORT);
+                toast.setGravity(Gravity.CENTER, 0, 0);
+                toast.show();
+            }
+
         }
     };
 
@@ -179,6 +204,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             btnManager.setText(getString(R.string.stop));
             tvTime.setVisibility(View.VISIBLE);
             tvDistance.setVisibility(View.VISIBLE);
+            tvVelocity.setVisibility(View.VISIBLE);
 
             handler = new Handler();
             threadIsWorking = true;
@@ -205,14 +231,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
             final Intent intent = new Intent(this, TrackerService.class);
             stopService(intent);
+            mMap.clear();
             threadIsWorking = false;
             btnManager.setText(getString(R.string.start));
             tvTime.setVisibility(View.INVISIBLE);
             tvDistance.setVisibility(View.INVISIBLE);
             tvDistance.setText(getString(R.string.cur_distance));
+            tvVelocity.setVisibility(View.INVISIBLE);
 
             Toast toast = Toast.makeText(getApplicationContext(), "Ваша активность была успешно записана!", Toast.LENGTH_SHORT);
-            toast.setGravity(Gravity.CENTER, 0, 0);
+            toast.setGravity(Gravity.BOTTOM, 0, 120);
             toast.show();
         }
     }
