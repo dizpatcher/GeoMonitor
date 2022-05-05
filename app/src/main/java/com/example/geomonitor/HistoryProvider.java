@@ -55,7 +55,7 @@ public class HistoryProvider extends ContentProvider {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         long id = db.insert("ActivityHistory", null, contentValues);
         db.close();
-        Uri newUri = ContentUris.withAppendedId(uri, id); //new Uri after inserting
+        Uri newUri = ContentUris.withAppendedId(uri, id); // новый uri после вставки
         Log.d(MY_TAG, newUri.toString());
         getContext().getContentResolver().notifyChange(newUri, null);
         return newUri;

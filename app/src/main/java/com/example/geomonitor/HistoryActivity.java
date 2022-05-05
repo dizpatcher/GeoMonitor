@@ -130,7 +130,7 @@ public class HistoryActivity extends AppCompatActivity implements AdapterView.On
     protected void onStart() {
         super.onStart();
         Log.d(MY_TAG, "HistoryActivity onStart");
-        queryHistory(null); //change the listView when HistoryActivity restart
+        queryHistory(null); // изменить список при новом входе на экран
     }
 
     @Override

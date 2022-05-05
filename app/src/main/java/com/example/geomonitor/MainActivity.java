@@ -39,6 +39,7 @@ import com.google.android.gms.maps.model.RoundCap;
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, View.OnClickListener {
 
     final String MY_TAG = "GEO_MONITOR";
+    private final int REQUIRED_ACCURACY = 51;
     private GoogleMap mMap;
     private TrackerService myService = null;
     private boolean threadIsWorking;
@@ -92,14 +93,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             return;
         }
 
-        mMap.setMyLocationEnabled(true);
-        mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-        mMap.getUiSettings().setZoomControlsEnabled(true);
+        mMap.setMyLocationEnabled(true); // отображения нашего месторасположения
+        mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID); // тип карты (гибрид, спутник и тп)
+        mMap.getUiSettings().setZoomControlsEnabled(true); // + и - интерфейса карты
 
-        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE); // создаём объект системной службы определения местоположения
         Location lastKnownLocation = null;
+
+        // узнаём локацию с помощью провайдера геопозиционирования GPS
         try {
-            lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER); // узнаём локацию с помощью провайдера геопозиционирования GPS
         } catch (SecurityException e) {
             Log.d(MY_TAG, e.toString());
         }
@@ -127,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         public void onReceive(Context context, Intent intent) {
 
             float accuracy = (float) intent.getExtras().get("accuracy");
-            if (accuracy < 6) {
+            if (accuracy < REQUIRED_ACCURACY) {
                 LatLng lastLatLng = (LatLng) intent.getExtras().get("lastLocation");
                 LatLng newLatLng = (LatLng) intent.getExtras().get("newLocation");
                 Polyline polyline = mMap.addPolyline(new PolylineOptions().add(lastLatLng, newLatLng).width(9).color(Color.GREEN));
@@ -154,13 +157,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     };
 
-    /** Defines callbacks as the second parameter of bindService() */
+    // Объект serviceConnection позволяет нам определить, когда мы подключились к сервису, и когда связь с ним была потеряна.
     private final ServiceConnection serviceConnection = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             Log.d(MY_TAG, "MainActivity onServiceConnected");
-            TrackerService.MyBinder binder = ( TrackerService.MyBinder) service;
+            TrackerService.MyBinder binder = (TrackerService.MyBinder) service;
             myService = binder.getService();
             myService.startTracking();
 
@@ -236,7 +239,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             btnManager.setText(getString(R.string.start));
             tvTime.setVisibility(View.INVISIBLE);
             tvDistance.setVisibility(View.INVISIBLE);
-            tvDistance.setText(getString(R.string.cur_distance));
             tvVelocity.setVisibility(View.INVISIBLE);
 
             Toast toast = Toast.makeText(getApplicationContext(), "Ваша активность была успешно записана!", Toast.LENGTH_SHORT);
