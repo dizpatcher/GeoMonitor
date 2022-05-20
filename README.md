@@ -14,20 +14,20 @@
 ## Демонстрация: 
 
 Главный экран:
-![alt text](images/main_screen.jpg "Главный экран")​
+![alt text](images/main_screen.jpg "Главный экран")​ { width=50% }
 
 История активностей:
-![alt text](images/history.jpg "История активностей")​
+![alt text](images/history.jpg "История активностей")​ { width=50%, height=50% }
 
 Детальная информация:
-![alt text](images/detail.jpg "Детальная информация")​
+![alt text](images/detail.jpg "Детальная информация")​ { width=50% } { height=50% }
 
 Предупреждение о качестве сигнала:
-![alt text](images/signal.jpg "Предупреждение о качестве сигнала")​
+![alt text](images/signal.jpg "Предупреждение о качестве сигнала")​ { width=50%; height=50% }
 
 Отображённый на карте маршрут и показатели активности:
-![alt text](images/route.jpg "Маршрут и показатели")​
+![alt text](images/route.jpg "Маршрут и показатели")​ { width=50% }
 
 Уведомление о работе в фоне:
-![alt text](images/notification.jpg "Уведомление")​
+![alt text](images/notification.jpg "Уведомление")​ { width=50% }
 
