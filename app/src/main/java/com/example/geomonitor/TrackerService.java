@@ -58,7 +58,7 @@ public class TrackerService extends Service {
         locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
         locationListener = new MyLocationListener();
         try{
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5, 25, locationListener); // провайдер, минимальное время обновления, минимальная дистанция, слушатель
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5, 5, locationListener); // провайдер, минимальное время обновления, минимальная дистанция, слушатель
         } catch(SecurityException e) {
             Log.d(MY_TAG, e.toString());
         }

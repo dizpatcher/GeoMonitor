@@ -39,7 +39,7 @@ import com.google.android.gms.maps.model.RoundCap;
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, View.OnClickListener {
 
     final String MY_TAG = "GEO_MONITOR";
-    private final int REQUIRED_ACCURACY = 51;
+    private final int REQUIRED_ACCURACY = 51; // качество GPS сигнала
     private GoogleMap mMap;
     private TrackerService myService = null;
     private boolean threadIsWorking;
@@ -130,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         public void onReceive(Context context, Intent intent) {
 
             float accuracy = (float) intent.getExtras().get("accuracy");
-            if (accuracy < REQUIRED_ACCURACY) {
+            if (accuracy < REQUIRED_ACCURACY) { // убеждаемся в хорошем качестве сигнала (заранее определён желательный уровень в глобальной переменной)
                 LatLng lastLatLng = (LatLng) intent.getExtras().get("lastLocation");
                 LatLng newLatLng = (LatLng) intent.getExtras().get("newLocation");
                 Polyline polyline = mMap.addPolyline(new PolylineOptions().add(lastLatLng, newLatLng).width(9).color(Color.GREEN));
